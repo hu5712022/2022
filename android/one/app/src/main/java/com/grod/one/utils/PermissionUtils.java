@@ -12,38 +12,42 @@ public class PermissionUtils {
     private static OnPermissListener listener;
 
     public interface OnPermissListener {
-
+            void onOk();
     }
 
     public static void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == CODE_REQUEST) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            } else {
-
+                    if(listener!=null){
+                        listener.onOk();
+                        listener = null;
+                    }
             }
         }
     }
 
     public static void request(Activity act, String[] permissions, OnPermissListener l) {
         listener = l;
-
-        if (ContextCompat.checkSelfPermission(act,
-                Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(act,
-                    Manifest.permission.READ_CONTACTS)) {
-                ActivityCompat.requestPermissions(act,
-                        permissions, CODE_REQUEST);
-            } else {
-                ActivityCompat.requestPermissions(act,
-                        new String[]{Manifest.permission.READ_CONTACTS},
-                        CODE_REQUEST);
-
+        boolean hasPer = true;
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(act,
+                    permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                hasPer = false;
+                break;
             }
+        }
+        if (!hasPer) {
+            ActivityCompat.requestPermissions(act,
+                    permissions, CODE_REQUEST);
         }
     }
 
+    public static String[] permissFile(){
+        return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE};
+    }
+    public static String[] permissCamera(){
+        return new String[]{Manifest.permission.CAMERA};
+    }
 }
