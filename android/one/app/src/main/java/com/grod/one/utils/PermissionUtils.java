@@ -12,17 +12,17 @@ public class PermissionUtils {
     private static OnPermissListener listener;
 
     public interface OnPermissListener {
-            void onOk();
+        void onOk();
     }
 
     public static void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == CODE_REQUEST) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(listener!=null){
-                        listener.onOk();
-                        listener = null;
-                    }
+                if (listener != null) {
+                    listener.onOk();
+                    listener = null;
+                }
             }
         }
     }
@@ -38,16 +38,20 @@ public class PermissionUtils {
                 break;
             }
         }
-        if (!hasPer) {
+        if (hasPer) {
+            l.onOk();
+            listener = null;
+        } else {
             ActivityCompat.requestPermissions(act,
                     permissions, CODE_REQUEST);
         }
     }
 
-    public static String[] permissFile(){
-        return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE};
+    public static String[] permissFile() {
+        return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
     }
-    public static String[] permissCamera(){
+
+    public static String[] permissCamera() {
         return new String[]{Manifest.permission.CAMERA};
     }
 }

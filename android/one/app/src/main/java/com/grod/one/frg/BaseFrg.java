@@ -21,11 +21,18 @@ public class BaseFrg extends Fragment {
     protected View rootView;
 
     protected Activity act;
-
+    protected boolean isInit;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         act = getActivity();
+        isInit = false;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        isInit = false;
     }
 
     @Override
@@ -51,5 +58,10 @@ public class BaseFrg extends Fragment {
     public void setTitle(String title) {
         TextView tv = rootView.findViewById(R.id.tv_title);
         tv.setText(title);
+    }
+    public TextView setTitleRight(String title) {
+        TextView tv = rootView.findViewById(R.id.tv_title_right);
+        tv.setText(title);
+        return tv;
     }
 }

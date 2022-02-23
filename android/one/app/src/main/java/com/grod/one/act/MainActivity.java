@@ -11,6 +11,7 @@ import android.os.Bundle;
 import com.grod.one.R;
 import com.grod.one.act.BaseAct;
 import com.grod.one.frg.BaseFrg;
+import com.grod.one.frg.MusicFrg;
 import com.grod.one.frg.ViewFrg;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class MainActivity extends BaseAct {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         listFrg.add(new ViewFrg());
+        listFrg.add(new MusicFrg());
         PagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @NonNull
             @Override
