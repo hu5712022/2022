@@ -12,10 +12,11 @@ import com.grod.one.R;
 
 public class ImgFrg extends BaseFrg{
 
-
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = View.inflate(act, R.layout.frg_img,null);
-        return rootView;
+    protected void initView() {
+         rootView = View.inflate(act,R.layout.frg_img,null);
+         init("图片");
+
+
     }
 }

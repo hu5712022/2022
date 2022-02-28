@@ -25,10 +25,9 @@ public class ViewFrg extends BaseFrg{
     RecyclerView rv;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    protected void initView() {
         rootView = View.inflate(act, R.layout.frg_view,null);
         init("弹弹效果");
-
         BaseQuickAdapter<String, BaseViewHolder> adapter = new BaseQuickAdapter<String,BaseViewHolder>(R.layout.item_frg_view) {
             @Override
             protected void convert(BaseViewHolder holder, String o) {
@@ -53,6 +52,5 @@ public class ViewFrg extends BaseFrg{
         adapter.addData("");
         adapter.addData("");
         adapter.addData("");
-        return rootView;
     }
 }
