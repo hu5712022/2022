@@ -9,6 +9,8 @@ import java.util.List;
 
 public class Music {
 
+    public boolean wyy;
+    public long id_wyy;
     public String name;
     public String singer;
     public String path;
