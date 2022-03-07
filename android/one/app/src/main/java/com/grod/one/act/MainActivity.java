@@ -13,6 +13,7 @@ import com.grod.one.act.BaseAct;
 import com.grod.one.frg.BaseFrg;
 import com.grod.one.frg.ImgFrg;
 import com.grod.one.frg.MusicFrg;
+import com.grod.one.frg.VideoFrg;
 import com.grod.one.frg.ViewFrg;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class MainActivity extends BaseAct {
         ButterKnife.bind(this);
         listFrg.add(new ViewFrg());
         listFrg.add(new MusicFrg());
+        listFrg.add(new VideoFrg());
         listFrg.add(new ImgFrg());
         PagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @NonNull

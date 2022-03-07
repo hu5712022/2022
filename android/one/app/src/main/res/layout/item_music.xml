@@ -3,14 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools">
+    <LinearLayout
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textSize="16sp"
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:textColor="@color/black"
+            android:layout_height="wrap_content"
+            tools:text="asf"/>
+        <TextView
+            android:layout_marginTop="2dp"
+            android:id="@+id/tv_singer"
+            android:textSize="14sp"
+            android:textColor="@color/color_999"
+            android:layout_width="wrap_content"
+            tools:text="asf"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
-    <TextView
-        android:layout_margin="20dp"
-        android:id="@+id/tv_name"
-        android:layout_width="wrap_content"
-        android:textColor="@color/black"
-        android:layout_height="wrap_content"
-        tools:text="asf"/>
 
 
 </FrameLayout>

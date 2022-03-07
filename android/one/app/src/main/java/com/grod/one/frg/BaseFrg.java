@@ -54,6 +54,7 @@ public class BaseFrg extends Fragment {
         }
         return rootView;
     }
+
     protected void initView(){
 
     }
