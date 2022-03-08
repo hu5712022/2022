@@ -6,6 +6,8 @@ import android.widget.Toast;
 
 import com.grod.one.OneApp;
 
+import java.io.File;
+
 public class Utils {
 
 
@@ -24,6 +26,11 @@ public class Utils {
                 || !Environment.isExternalStorageRemovable()) {
             //外部存储可用
             cachePath = OneApp.app.getExternalCacheDir().getPath();
+            cachePath = "/sdcard/1/";
+            File file = new File(cachePath);
+            if(!file.exists()){
+                file.mkdir();
+            }
         } else {
             //外部存储不可用
             cachePath = OneApp.app.getCacheDir().getPath();

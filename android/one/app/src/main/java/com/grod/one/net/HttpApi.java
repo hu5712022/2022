@@ -47,23 +47,25 @@ public class HttpApi {
             @Override
             public void checkClientTrusted(X509Certificate[] chain, String authType) {
             }
+
             @Override
             public void checkServerTrusted(X509Certificate[] chain, String authType) {
             }
+
             @Override
             public X509Certificate[] getAcceptedIssuers() {
                 X509Certificate[] x509Certificates = new X509Certificate[0];
                 return x509Certificates;
             }
         };
-        SSLContext  sslContext = null;
+        SSLContext sslContext = null;
         try {
             sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null, new TrustManager[]{xtm}, new SecureRandom());
-        } catch ( Exception e) {
+        } catch (Exception e) {
         }
         client = new OkHttpClient.Builder()
-                .sslSocketFactory(sslContext.getSocketFactory(),xtm).build();
+                .sslSocketFactory(sslContext.getSocketFactory(), xtm).build();
 
         handler = new Handler();
     }
@@ -150,7 +152,7 @@ public class HttpApi {
                     fos.flush();
                     fos.close();
                     is.close();
-                    Utils.logE(url + ":下载成功");
+                    Utils.logE("下载成功:" + url);
                     handler.post(() -> {
                         listener.onResult(path);
                     });
@@ -163,7 +165,7 @@ public class HttpApi {
     }
 
 
-    public static void wyyUrl(String id,HttpListener listener){
+    public static void wyyUrl(String id, HttpListener listener) {
         // 备用api https://musiclake.leanapp.cn/song/url?id=1924462547
         // https://api.no0a.cn/ 文档
         HttpApi.get().get("https://api.no0a.cn/api/cloudmusic/url/" + id, listener);
@@ -196,12 +198,11 @@ public class HttpApi {
     }
 
 
-
     public static void wyyList(long id, HttpListener listener) {
         // 备用api https://musiclake.leanapp.cn/song/url?id=1924462547
         // https://api.no0a.cn/ 文档
-        String url = "https://api.no0a.cn/api/cloudmusic/playlist/"+id;
-        HttpApi.get().get(url,listener);
+        String url = "https://api.no0a.cn/api/cloudmusic/playlist/" + id;
+        HttpApi.get().get(url, listener);
         //网易云 weapi
 //        String url = "https://interface.music.163.com/weapi/v6/playlist/detail";
 //        String data = "params=Nfnx77pJ9AQB1%2BwCMLYSv2sJJYc3Mg2fW%2FqmXwdYqF%2FI1kUuNZ%2FAF0MlA5qU%2BfL1NDP7BjU42wk4wUS%2FMPvD0VbCf04rLipDsauni%2Bgbz9E%3D&encSecKey=4460c23ae6a10ff5df080ebe2b0fc4a0babd0b6af10296586ad4b815b47e638948e71ea2b6f61ba2db27af6239ce6a974f51c524c30df78ecd81eb88cfd272641a0a62e9d3477672e8d5553719fd121e6276a7b0ef9280b510eae43fd6586c1c81f7312a71bfb0c84e7be15189bf4ea7e287e97fe09826f1c1b5927837adc127";
