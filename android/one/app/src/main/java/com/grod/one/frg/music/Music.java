@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Music {
+    public String srcType;//qq,xiami,netease
+    public String srcId;// 源id
 
-    public boolean wyy;
-    public long id_wyy;
     public String name;
     public String singer;
     public String path;

@@ -2,6 +2,7 @@ package com.grod.one.utils;
 
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.grod.one.OneApp;
 
@@ -29,5 +30,9 @@ public class Utils {
         }
         return cachePath;
 
+    }
+
+    public static void toast(String msg) {
+        Toast.makeText(OneApp.app,msg,Toast.LENGTH_SHORT).show();
     }
 }

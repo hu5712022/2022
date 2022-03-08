@@ -163,7 +163,7 @@ public class HttpApi {
     }
 
 
-    public static void wyyUrl(long id,HttpListener listener){
+    public static void wyyUrl(String id,HttpListener listener){
         // 备用api https://musiclake.leanapp.cn/song/url?id=1924462547
         // https://api.no0a.cn/ 文档
         HttpApi.get().get("https://api.no0a.cn/api/cloudmusic/url/" + id, listener);
