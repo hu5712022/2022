@@ -3,6 +3,7 @@ package com.grod.one.frg.music;
 import android.media.MediaPlayer;
 import android.text.TextUtils;
 
+
 import com.grod.one.listener.ObjListener;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class MusicApi {
                 player = null;
             }
         }
+
 
         if (player == null) {
             //初始化播放
