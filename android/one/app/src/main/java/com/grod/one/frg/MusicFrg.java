@@ -3,35 +3,23 @@ package com.grod.one.frg;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.cyl.musicapi.BaseApiImpl;
-import com.cyl.musicapi.bean.ArtistSongs;
 import com.cyl.musicapi.bean.SongBean;
 import com.cyl.musicapi.bean.TopListBean;
 import com.cyl.musicapi.playlist.ArtistsItem;
 import com.cyl.musicapi.playlist.MusicInfo;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import com.grod.one.R;
 import com.grod.one.frg.music.Music;
 import com.grod.one.frg.music.MusicApi;
@@ -39,27 +27,17 @@ import com.grod.one.frg.music.MusicGroup;
 import com.grod.one.listener.ObjListener;
 import com.grod.one.net.HttpApi;
 import com.grod.one.net.HttpListener;
-import com.grod.one.utils.AES;
 import com.grod.one.utils.PermissionUtils;
 import com.grod.one.utils.SpUtils;
 import com.grod.one.utils.Utils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import butterknife.BindView;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
-import okhttp3.FormBody;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 
 public class MusicFrg extends BaseFrg {
     @BindView(R.id.rv)
@@ -76,7 +54,7 @@ public class MusicFrg extends BaseFrg {
             @Override
             protected void convert(@NonNull BaseViewHolder helper, Music item) {
                 helper.setText(R.id.tv_name, item.name);
-                helper.setText(R.id.tv_singer, item.singer);
+                helper.setText(R.id.tv_singer, item.artist);
                 if (helper.getAdapterPosition() == currentPos) {
                     helper.itemView.setBackgroundResource(R.color.color_33BB86FC);
                 } else {
@@ -292,7 +270,7 @@ public class MusicFrg extends BaseFrg {
                     singer.append(artists.get(x).getName());
                 }
             }
-            music.singer = singer.toString();
+            music.artist = singer.toString();
             list.add(music);
         }
         adapter.setNewData(list);
@@ -322,7 +300,7 @@ public class MusicFrg extends BaseFrg {
                             singer.append(artist.get(x).getAsJsonObject().get("name").getAsString());
                         }
                     }
-                    music.singer = singer.toString();
+                    music.artist = singer.toString();
                     music.srcType = "netease";
                     list.add(music);
                 }
