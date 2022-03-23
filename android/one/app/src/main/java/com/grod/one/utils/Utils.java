@@ -25,10 +25,9 @@ public class Utils {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
                 || !Environment.isExternalStorageRemovable()) {
             //外部存储可用
-            cachePath = OneApp.app.getExternalCacheDir().getPath();
-            cachePath = "/sdcard/1/";
+            cachePath = "/sdcard/1";
             File file = new File(cachePath);
-            if(!file.exists()){
+            if (!file.exists()) {
                 file.mkdir();
             }
         } else {
@@ -36,10 +35,25 @@ public class Utils {
             cachePath = OneApp.app.getCacheDir().getPath();
         }
         return cachePath;
+    }
 
+    public static File getMusicDir() {
+        File file = new File(cachePath(), "music");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        return file;
+    }
+
+    public static File getVideoDir() {
+        File file = new File(cachePath(), "video");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        return file;
     }
 
     public static void toast(String msg) {
-        Toast.makeText(OneApp.app,msg,Toast.LENGTH_SHORT).show();
+        Toast.makeText(OneApp.app, msg, Toast.LENGTH_SHORT).show();
     }
 }

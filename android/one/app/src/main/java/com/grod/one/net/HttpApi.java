@@ -11,6 +11,9 @@ import com.grod.one.frg.music.Music;
 import com.grod.one.utils.SpUtils;
 import com.grod.one.utils.Utils;
 
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -79,7 +82,8 @@ public class HttpApi {
 
 
     public void post(String url, String json, HttpListener listener) {
-        RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
+        RequestBody body = RequestBody.create(json, MediaType.get("application/json; " +
+                "charset=utf-8"));
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
@@ -123,7 +127,50 @@ public class HttpApi {
         });
     }
 
+    public void downX(String url, String path, HttpListener listener) {
+        RequestParams params = new RequestParams(url);
+        params.setSaveFilePath(path);
+        params.setCacheSize(1000*1024*1024);
+        x.http().get(params, new org.xutils.common.Callback.ProgressCallback<File>() {
+            @Override
+            public void onWaiting() {
+
+            }
+
+            @Override
+            public void onStarted() {
+
+            }
+
+            @Override
+            public void onLoading(long total, long current, boolean isDownloading) {
+                Utils.logE("下载中:" + url + (current * 100 / total));
+            }
+
+            @Override
+            public void onSuccess(File result) {
+                Utils.logE("下载成功:" + url);
+            }
+
+            @Override
+            public void onError(Throwable e, boolean isOnCallback) {
+                Utils.logE("下载失败:" + url + e.getMessage());
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
     public void down(String url, String path, HttpListener listener) {
+
         Request request = new Request.Builder()
                 .url(url)
                 .get()
@@ -133,16 +180,22 @@ public class HttpApi {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 handler.post(() -> {
                     String url = call.request().url().toString();
-                    Utils.logE(url + ":" + e.getMessage());
+                    Utils.logE("下载失败:" + url + e.getMessage());
                     listener.onError("请求异常");
                 });
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                int code = response.code();
+                if (code != 200) {
+                    onFailure(call, new IOException("请求" + code));
+                    return;
+                }
+                long all = Integer.parseInt(response.header("Content-Length"));
                 InputStream is = response.body().byteStream();
                 try {
-                    File file = new File(path);
+                    File file = new File(path+"cache");
                     FileOutputStream fos = new FileOutputStream(file);
                     byte[] bytes = new byte[2048];
                     int len = 0;
@@ -152,6 +205,7 @@ public class HttpApi {
                     fos.flush();
                     fos.close();
                     is.close();
+                    boolean b = file.renameTo(new File(path));
                     Utils.logE("下载成功:" + url);
                     handler.post(() -> {
                         listener.onResult(path);
@@ -205,8 +259,11 @@ public class HttpApi {
         HttpApi.get().get(url, listener);
         //网易云 weapi
 //        String url = "https://interface.music.163.com/weapi/v6/playlist/detail";
-//        String data = "params=Nfnx77pJ9AQB1%2BwCMLYSv2sJJYc3Mg2fW%2FqmXwdYqF%2FI1kUuNZ%2FAF0MlA5qU%2BfL1NDP7BjU42wk4wUS%2FMPvD0VbCf04rLipDsauni%2Bgbz9E%3D&encSecKey=4460c23ae6a10ff5df080ebe2b0fc4a0babd0b6af10296586ad4b815b47e638948e71ea2b6f61ba2db27af6239ce6a974f51c524c30df78ecd81eb88cfd272641a0a62e9d3477672e8d5553719fd121e6276a7b0ef9280b510eae43fd6586c1c81f7312a71bfb0c84e7be15189bf4ea7e287e97fe09826f1c1b5927837adc127";
-//        RequestBody body = RequestBody.create(data, MediaType.get("application/x-www-form-urlencoded"));
+//        String data = "params=Nfnx77pJ9AQB1%2BwCMLYSv2sJJYc3Mg2fW%2FqmXwdYqF%2FI1kUuNZ
+//        %2FAF0MlA5qU%2BfL1NDP7BjU42wk4wUS%2FMPvD0VbCf04rLipDsauni%2Bgbz9E%3D&encSecKey
+//        =4460c23ae6a10ff5df080ebe2b0fc4a0babd0b6af10296586ad4b815b47e638948e71ea2b6f61ba2db27af6239ce6a974f51c524c30df78ecd81eb88cfd272641a0a62e9d3477672e8d5553719fd121e6276a7b0ef9280b510eae43fd6586c1c81f7312a71bfb0c84e7be15189bf4ea7e287e97fe09826f1c1b5927837adc127";
+//        RequestBody body = RequestBody.create(data, MediaType.get
+//        ("application/x-www-form-urlencoded"));
 //        Request request = new Request.Builder()
 //                .url(url)
 //                .post(body)

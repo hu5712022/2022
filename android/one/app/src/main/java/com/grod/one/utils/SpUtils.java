@@ -29,6 +29,9 @@ public class SpUtils {
     public static int getInt(String key) {
         return spf().getInt(key, 0);
     }
+    public static int getInt(String key,int def) {
+        return spf().getInt(key, def);
+    }
 
     public static void putBoolean(String key, boolean data) {
         spf().edit().putBoolean(key, data).apply();

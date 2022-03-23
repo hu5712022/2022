@@ -127,7 +127,8 @@ public class MusicFrg extends BaseFrg {
 
 
     private void playWyy(Music item, int position) {
-        String path = Utils.cachePath() + "/" + item.name + ".mp3";
+        String path =new File(Utils.getMusicDir(),item.name + ".mp3").getAbsolutePath();
+
         if (new File(path).exists()) {
             item.path = path;
             play(item.path, position);

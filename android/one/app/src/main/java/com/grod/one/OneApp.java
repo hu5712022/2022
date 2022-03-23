@@ -3,7 +3,7 @@ package com.grod.one;
 import android.app.Application;
 
 import com.cyl.musicapi.BaseApiImpl;
-
+import org.xutils.x;
 public class OneApp extends Application {
     public static OneApp app;
 
@@ -12,6 +12,7 @@ public class OneApp extends Application {
         super.onCreate();
         app = this;
         BaseApiImpl.INSTANCE.initWebView(this);
+        x.Ext.init(this);
     }
 
 

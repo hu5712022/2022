@@ -31,6 +31,10 @@ public class WebViewX5 extends WebView {
     @SuppressLint({"JavascriptInterface", "SetJavaScriptEnabled"})
     private void init() {
         getSettings().setJavaScriptEnabled(true);
+        //如果访问的页面中要与Javascript交互，则webview必须设置支持Javascript
+        getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         addJavascriptInterface(new JsEvent(),"android");
+
+
     }
 }
