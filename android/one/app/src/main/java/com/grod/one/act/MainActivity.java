@@ -21,6 +21,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.jzvd.Jzvd;
 
 public class MainActivity extends BaseAct {
 
@@ -49,5 +50,13 @@ public class MainActivity extends BaseAct {
             }
         };
         vp.setAdapter(adapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (Jzvd.backPress()) {
+            return;
+        }
+        super.onBackPressed();
     }
 }

@@ -10,4 +10,7 @@ public class HttpListener {
     public void onError(String data) {
     }
 
+    public void onPre(int pre) {
+    }
+
 }

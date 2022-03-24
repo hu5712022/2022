@@ -98,6 +98,34 @@ public class HttpApi {
                 .build();
         send(request, listener);
     }
+    public void getX(String url, HttpListener listener) {
+        RequestParams rp = new RequestParams(url);
+
+        x.http().get(rp, new org.xutils.common.Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                listener.onResult(result);
+                Utils.logE(url + ":" + result);
+            }
+
+            @Override
+            public void onError(Throwable e, boolean isOnCallback) {
+                Utils.logE(url + ":" + e.getMessage());
+                listener.onError("请求异常");
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+
+    }
 
     public void send(Request request, HttpListener listener) {
         client.newCall(request).enqueue(new Callback() {
@@ -130,7 +158,8 @@ public class HttpApi {
     public void downX(String url, String path, HttpListener listener) {
         RequestParams params = new RequestParams(url);
         params.setSaveFilePath(path);
-        params.setCacheSize(1000*1024*1024);
+        params.setAutoResume(true);
+        params.setCacheSize(1000 * 1024 * 1024);
         x.http().get(params, new org.xutils.common.Callback.ProgressCallback<File>() {
             @Override
             public void onWaiting() {
@@ -144,17 +173,39 @@ public class HttpApi {
 
             @Override
             public void onLoading(long total, long current, boolean isDownloading) {
+
                 Utils.logE("下载中:" + url + (current * 100 / total));
+
+
+                x.task().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onPre((int) (current * 100 / total));
+                    }
+                });
             }
 
             @Override
             public void onSuccess(File result) {
                 Utils.logE("下载成功:" + url);
+                x.task().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onResult(path);
+                    }
+                });
+
             }
 
             @Override
             public void onError(Throwable e, boolean isOnCallback) {
                 Utils.logE("下载失败:" + url + e.getMessage());
+                x.task().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onError(e.getMessage());
+                    }
+                });
             }
 
             @Override
@@ -181,21 +232,21 @@ public class HttpApi {
                 handler.post(() -> {
                     String url = call.request().url().toString();
                     Utils.logE("下载失败:" + url + e.getMessage());
-                    listener.onError("请求异常");
+                    listener.onError(e.getMessage());
                 });
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 int code = response.code();
-                if (code != 200) {
+                if (code == 405 || code == 404) {
                     onFailure(call, new IOException("请求" + code));
                     return;
                 }
                 long all = Integer.parseInt(response.header("Content-Length"));
                 InputStream is = response.body().byteStream();
                 try {
-                    File file = new File(path+"cache");
+                    File file = new File(path + "cache");
                     FileOutputStream fos = new FileOutputStream(file);
                     byte[] bytes = new byte[2048];
                     int len = 0;

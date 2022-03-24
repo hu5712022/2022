@@ -1,9 +1,13 @@
 package com.grod.one.frg;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -33,15 +37,20 @@ import org.xutils.x;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
+import cn.jzvd.Jzvd;
 import cn.jzvd.JzvdStd;
 import okhttp3.Request;
 
 public class VideoFrg extends BaseFrg {
     @BindView(R.id.rv)
     RecyclerView rv;
+    @BindView(R.id.web)
+    WebView web;
     BaseQuickAdapter<Video, BaseViewHolder> adapter;
 
     @Override
@@ -52,6 +61,7 @@ public class VideoFrg extends BaseFrg {
             @Override
             protected void convert(@NonNull BaseViewHolder helper, Video item) {
                 JzvdStd jzvdStd = helper.getView(R.id.video);
+                int pos = helper.getAdapterPosition();
                 helper.getView(R.id.tv_url).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -59,23 +69,14 @@ public class VideoFrg extends BaseFrg {
                             WebViewX5 web = new WebViewX5(act);
                             web.loadUrl("https://www.yinyuetai.com/play?id=" + item.srcId);
                             web.setWebViewClient(new WebViewClient() {
-                                @Override
-                                public void onPageFinished(WebView view, String url) {
-                                    super.onPageFinished(view, url);
-                                    web.destroy();
-                                }
-
                                 boolean first = true;
 
                                 @Override
                                 public WebResourceResponse shouldInterceptRequest(WebView view,
                                                                                   WebResourceRequest request) {
-                                    if (!first) {
-                                        return null;
-                                    }
                                     String url = request.getUrl().toString();
                                     Utils.logE(url);
-                                    if (url.endsWith("mp4")) {
+                                    if (url.endsWith("mp4") && first) {
                                         first = false;
                                         x.task().postDelayed(new Runnable() {
                                             @Override
@@ -83,15 +84,26 @@ public class VideoFrg extends BaseFrg {
                                                 web.destroy();
                                                 String videoUrl = url;
                                                 item.path = videoUrl;
-                                                adapter.notifyItemChanged(helper.getAdapterPosition());
+                                                adapter.notifyItemChanged(pos);
                                                 Utils.toast("获取url：" + videoUrl);
                                                 String path = new File(Utils.getVideoDir(),
                                                         item.title + ".mp4").getAbsolutePath();
-                                                HttpApi.get().down(videoUrl, path,
-                                                        new HttpListener(){
+                                                HttpApi.get().downX(videoUrl, path,
+                                                        new HttpListener() {
+                                                            @Override
+                                                            public void onError(String data) {
+                                                                web.destroy();
+                                                                Utils.toast("下载失败：" + item.title + data);
+                                                            }
+
                                                             @Override
                                                             public void onResult(String data) {
-                                                               //下完
+                                                                web.destroy();
+                                                                //下完
+                                                                Utils.toast("下载成功：" + item.title);
+                                                                item.path = path;
+
+                                                                adapter.notifyItemChanged(pos);
                                                             }
                                                         });
                                             }
@@ -124,13 +136,47 @@ public class VideoFrg extends BaseFrg {
                         } else if (TextUtils.equals(item.srcType, "dy")) {
                             // 抖音接口
                             // https://www.douyin.com/web/api/v2/aweme/iteminfo/?item_ids=7006666248016629000
+                            HttpApi.get().get("https://www.douyin.com/web/api/v2/aweme/iteminfo" +
+                                    "/?item_ids=" + item.srcId, new HttpListener() {
+                                @Override
+                                public void onResult(String data) {
+                                    JsonObject json = (JsonObject) new JsonParser().parse(data);
+                                    String videoUrl = json.getAsJsonArray("item_list").get(0)
+                                            .getAsJsonObject().getAsJsonObject("video")
+                                            .getAsJsonObject("play_addr")
+                                            .getAsJsonArray("url_list")
+                                            .get(0).getAsString();
+                                    item.path = videoUrl;
+                                    adapter.notifyItemChanged(pos);
+                                    Utils.toast("获取url：" + videoUrl);
+                                    String path = new File(Utils.getVideoDir(),
+                                            item.title + ".mp4").getAbsolutePath();
+                                    HttpApi.get().downX(videoUrl, path,
+                                            new HttpListener() {
+                                                @Override
+                                                public void onError(String data) {
+                                                    web.destroy();
+                                                    Utils.toast("下载失败：" + item.title + data);
+                                                }
+
+                                                @Override
+                                                public void onResult(String data) {
+                                                    web.destroy();
+                                                    //下完
+                                                    Utils.toast("下载成功：" + item.title);
+                                                    item.path = path;
+                                                    adapter.notifyItemChanged(pos);
+                                                }
+                                            });
+                                }
+                            });
                         }
                     }
                 });
-                if(!TextUtils.isEmpty(item.path)&&!item.path.startsWith("http")){
-                    helper.setText(R.id.tv_url,"已下载");
-                }else {
-                    helper.setText(R.id.tv_url,"获取url");
+                if (!TextUtils.isEmpty(item.path) && !item.path.startsWith("http")) {
+                    helper.setText(R.id.tv_url, "已下载");
+                } else {
+                    helper.setText(R.id.tv_url, "获取url");
                 }
                 jzvdStd.setUp(item.path, item.title);
                 Glide.with(act)
@@ -140,6 +186,7 @@ public class VideoFrg extends BaseFrg {
         };
         rv.setLayoutManager(new LinearLayoutManager(act));
         rv.setAdapter(adapter);
+        rv.getItemAnimator().setChangeDuration(0);
         adapter.addData(new Video());
         setTitleRight("来源").setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,11 +195,15 @@ public class VideoFrg extends BaseFrg {
             }
         });
 
-        int video_src = SpUtils.getInt("video_src");
-        if (video_src < 5) {
-            getYytList(video_src + 1);
-        } else {
 
+        loadData(SpUtils.getInt("video_src"));
+    }
+
+    private void loadData(int pos) {
+        if (pos < 5) {
+            getYytList(pos + 1);
+        } else {
+            getDyList();
         }
     }
 
@@ -164,16 +215,84 @@ public class VideoFrg extends BaseFrg {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 SpUtils.putInt("video_src", which);
-                getYytList(which + 1);
+                loadData(which);
             }
         });
         builder.show();
     }
 
+    final class Dy {
+        @JavascriptInterface
+        public void load(String data) {
+            String[] split = data.split("\"><a href=\"//www.douyin.com/video/");
+            List<Video> listVideo = new ArrayList<>();
+            for (int i = 1; i < split.length; i++) {
+                Video video = new Video();
+                String item = split[i];
+                String id = item.split("\"")[0];
+                String img =
+                        "https://" + item.split("<img src=\"//")[1].split("\"")[0].replaceAll(
+                                "&amp;", "&");
+                String name = item.split("alt=\"")[1].split("\"")[0];
+                video.srcType = "dy";
+                video.srcId = id;
+                video.title = name;
+                video.img = img;
+                String path =
+                        new File(Utils.getVideoDir(), video.title + ".mp4").getAbsolutePath();
+                if (new File(path).exists()) {
+                    video.path = path;
+                }
+                listVideo.add(video);
+            }
+            x.task().post(new Runnable() {
+                @Override
+                public void run() {
+                    adapter.setNewData(listVideo);
+                }
+            });
+
+        }
+    }
+
+    @SuppressLint("JavascriptInterface")
     private void getDyList() {
-        // 通过网页数据 抓id
-        // https://www.douyin.com/discover
-        // 抓这个  ： https://www.douyin.com/video/7055555524519054628
+        WebView web = new WebView(act);
+        web.getSettings().setSupportZoom(true);
+        web.getSettings().setDomStorageEnabled(true);
+        web.getSettings().setJavaScriptEnabled(true);
+        web.requestFocus();
+        web.getSettings().setUseWideViewPort(true);
+        web.getSettings().setLoadWithOverviewMode(true);
+        web.getSettings().setSupportZoom(true);
+        web.getSettings().setBuiltInZoomControls(true);
+        web.addJavascriptInterface(new Dy(), "android");
+        web.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                x.task().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.loadUrl("javascript:window.android.load(document" +
+                                ".getElementsByTagName('html')[0].innerHTML);");
+                    }
+                }, 1000);
+
+            }
+        });
+        web.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36 Edg/99" +
+                ".0.1150.46");
+        web.loadUrl("https://www.douyin.com/discover");
+
+
     }
 
     private void getYytList(int type) {
@@ -205,5 +324,12 @@ public class VideoFrg extends BaseFrg {
                 adapter.setNewData(listVideo);
             }
         });
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Jzvd.releaseAllVideos();
     }
 }
